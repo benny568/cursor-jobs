@@ -1,0 +1,50 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- When dealing with Jira tickets, always use the Jira project "REF"
+
+## Deployment Report Template
+
+When asked to generate a deployment report for any time period, use this template:
+
+### Standard Deployment Report Structure:
+
+1. **Find all deployment tickets** for the specified time period in the REF project
+   - Search: `project = REF AND created >= "[START_DATE]" AND created <= "[END_DATE]" AND (issuetype = "Deployment" OR summary ~ "deployment" OR description ~ "deployment" OR labels = "deployment")`
+   - Fields: `key,summary,issuetype,status,created,assignee,fixVersions,labels,description`
+
+2. **List linked child issues** for each deployment ticket
+   - Get child/referenced tickets (exclude parent epics)
+   - For tickets mentioned in deployment title (e.g., "REF-2228/REF-2351"), retrieve those ticket details
+   - Include: ticket key, summary, status for each linked issue
+
+3. **Group deployments by Fixed Version**
+   - Use the `fixVersions` field to group tickets
+   - Format: Show version name as group header with all tickets listed underneath
+   - Handle empty versions: Group under "No Fixed Version Set"
+
+4. **Include these details for each ticket**:
+   - Ticket key with Jira link
+   - Summary/title
+   - Creation date
+   - Status with indicator (✅ for Done/Deployed)
+   - Assignee name
+   - Referenced child tickets (if any)
+
+5. **Provide summary section**:
+   - Total count of deployment tickets
+   - Status breakdown
+   - Fixed version distribution
+
+### Usage Instructions:
+- Replace `[START_DATE]` and `[END_DATE]` with actual dates (format: "YYYY-MM-DD")
+- For monthly reports: Use first and last day of the month
+- Always retrieve complete ticket details using `*all` fields when needed for comprehensive information
+- Use parallel tool calls to efficiently gather all ticket information
+
+### Example Request Formats:
+- "Generate deployment report for June 2025"
+- "Show deployment tickets for Q1 2025"
+- "List deployments from January 1 to January 15, 2025"
