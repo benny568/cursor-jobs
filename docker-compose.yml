@@ -1,0 +1,111 @@
+version: "3.8"
+
+services:
+  # PostgreSQL Database
+  database:
+    image: postgres:15-alpine
+    container_name: resource-planner-db
+    environment:
+      POSTGRES_DB: resource_planner
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./resourcePlannerBackend
+      dockerfile: Dockerfile
+    container_name: resource-planner-backend
+    environment:
+      DATABASE_URL: postgresql://postgres:password@database:5432/resource_planner
+      NODE_ENV: production
+      PORT: 3001
+      # Disable SSL verification for development (remove for production)
+      NODE_TLS_REJECT_UNAUTHORIZED: 0
+      # Story points field configuration
+      JIRA_STORY_POINTS_FIELD: ${JIRA_STORY_POINTS_FIELD:-customfield_10978}
+    ports:
+      - "3001:3001"
+    depends_on:
+      database:
+        condition: service_healthy
+    command: >
+      sh -c "
+        export NODE_TLS_REJECT_UNAUTHORIZED=0 &&
+        npx prisma db push &&
+        npx prisma generate &&
+        npm start
+      "
+    volumes:
+      - ./resourcePlannerBackend/prisma:/app/prisma
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3001/api/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Jira Proxy Service
+  jira-proxy:
+    build:
+      context: ./jira-proxy
+      dockerfile: Dockerfile
+    container_name: resource-planner-jira-proxy
+    environment:
+      # YOU MUST SET THESE FOR JIRA INTEGRATION TO WORK:
+      # Get API token from: https://id.atlassian.com/manage-profile/security/api-tokens
+      JIRA_EMAIL: ${JIRA_EMAIL:-your-email@cvshealthplan.com}
+      JIRA_API_TOKEN: ${JIRA_API_TOKEN:-your-api-token-here}
+      PORT: 8080
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8080/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend
+  frontend:
+    build:
+      context: ./resourcePlanner
+      dockerfile: Dockerfile
+    container_name: resource-planner-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      - ./resourcePlanner/nginx.conf:/etc/nginx/conf.d/default.conf
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    driver: bridge

@@ -1,0 +1,31 @@
+version: "3.8"
+
+# Production override for docker-compose.yml
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+
+services:
+  backend:
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@database:5432/resource_planner
+      NODE_ENV: production
+      PORT: 3001
+      # Remove NODE_TLS_REJECT_UNAUTHORIZED for production security
+    command: >
+      sh -c "
+        npx prisma db push &&
+        npx prisma generate &&
+        npm start
+      "
+    restart: unless-stopped
+
+  frontend:
+    restart: unless-stopped
+
+  database:
+    environment:
+      POSTGRES_DB: resource_planner
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    restart: unless-stopped
+    # In production, consider using external managed database
+    # and removing the ports exposure for security

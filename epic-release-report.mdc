@@ -1,0 +1,177 @@
+# Epic Release Report Generator Prompt
+
+## Purpose
+
+Generate a comprehensive deployment status report for all tickets under a specific Epic, cross-referenced with deployment tickets within a specified timeframe.
+
+## Prompt Template
+
+```
+Please generate an Epic Release Report for Epic [EPIC_ID] covering deployments from [START_DATE] to [END_DATE].
+
+Follow these steps:
+
+1. **Retrieve Epic Details**
+   - Get full details of Epic [EPIC_ID] including summary, description, status, and assignee
+   - Include Epic metadata: created date, updated date, labels, and target end date
+
+2. **Find All Child Tickets**
+   - Search for all tickets linked to Epic [EPIC_ID] using: `project = REF AND "Epic Link" = [EPIC_ID]`
+   - Retrieve fields: key, summary, status, issuetype, assignee, created, updated, fixVersions, labels
+   - Include both active and cancelled tickets
+
+3. **Search Deployment Tickets**
+   - Find deployment tickets in timeframe using: `project = REF AND (issuetype = "Deployment" OR summary ~ "deployment" OR description ~ "deployment" OR labels = "deployment") AND created >= "[START_DATE]" AND created <= "[END_DATE]"`
+   - Retrieve fields: key, summary, issuetype, status, created, assignee, fixVersions, labels, description
+   - Focus on tickets with status "Deployed" or "Pending Approval"
+
+4. **Cross-Reference Analysis**
+   - Match Epic child tickets with deployment tickets by:
+     - Fix Version alignment (e.g., "Weaver - Jul25" matches deployment REF-XXXX)
+     - Explicit ticket references in deployment descriptions (e.g., "REF-2228/REF-2351")
+     - Date correlation between ticket completion and deployment dates
+     - Application/component matching (CMS, Content-Weaver, Context-Writer/PWA)
+
+5. **Categorize Tickets**
+   - **✅ DEPLOYED**: Tickets with status "Done" (these are already deployed and should correlate with deployment evidence)
+   - **⏳ PENDING DEPLOYMENT**: Tickets with status "Ready for Deployment" or similar (completed development but not yet deployed)
+   - **🔄 IN PROGRESS**: Tickets actively being worked on (status like "In Progress", "In Review", "Ready")
+   - **❌ CANCELLED**: Tickets with cancelled status
+   - **📋 DRAFT**: Tickets in draft status (not yet started)
+
+   **Status Clarifications:**
+   - **"Done" status means the ticket has been completed AND deployed to production**
+   - "Ready" status means ready for development work to begin, not ready for deployment
+   - "Draft" status indicates tickets that are planned but not yet started
+   - Only look for "Pending Deployment" status or similar explicit statuses for work awaiting deployment
+
+6. **Deployment Correlation Analysis**
+   - Cross-reference Done tickets with deployment tickets found in the timeframe
+   - Match by Fix Version alignment (e.g., "Weaver - Jul25" matches deployment REF-XXXX)
+   - Look for explicit ticket references in deployment descriptions (e.g., "REF-2228/REF-2351")
+   - Note deployment tracking gaps where Done tickets don't have corresponding deployment tickets
+   - Consider that many deployments may occur outside tracked deployment tickets (Backend, PWA, Core, etc.)
+
+7. **Generate Report Structure**
+
+### Epic [EPIC_ID]: [EPIC_SUMMARY] - Deployment Status Report
+**Timeframe**: [START_DATE] to [END_DATE]
+**Epic Status**: [STATUS]
+**Epic Assignee**: [ASSIGNEE]
+
+#### Epic Overview
+- **Description**: [EPIC_DESCRIPTION]
+- **Created**: [CREATED_DATE]
+- **Target End**: [TARGET_END_DATE]
+- **Labels**: [LABELS]
+
+#### ✅ DEPLOYED TICKETS ([COUNT] tickets)
+For each deployed ticket (status = Done):
+- **[TICKET_KEY]** - [SUMMARY] (Status: Done)
+  - Fix Version: [FIX_VERSION]
+  - Assignee: [ASSIGNEE]
+  - Deployed via: [DEPLOYMENT_TICKET] ([DEPLOYMENT_DATE]) OR [DEPLOYMENT_INFO/PLATFORM]
+
+#### ⏳ PENDING DEPLOYMENT ([COUNT] tickets)
+For each ticket with completed development but not yet deployed:
+- **[TICKET_KEY]** - [SUMMARY] (Status: [STATUS])
+  - Fix Version: [FIX_VERSION]
+  - Assignee: [ASSIGNEE]
+  - Expected deployment: [EXPECTED_DEPLOYMENT_INFO]
+
+#### 🔄 IN PROGRESS ([COUNT] tickets)
+For each in-progress ticket (Ready, In Progress, In Review, etc.):
+- **[TICKET_KEY]** - [SUMMARY] (Status: [STATUS])
+  - Assignee: [ASSIGNEE]
+  - Last Updated: [UPDATED_DATE]
+
+#### ❌ CANCELLED ([COUNT] tickets)
+For each cancelled ticket:
+- **[TICKET_KEY]** - [SUMMARY] (Status: Cancelled)
+
+#### 📋 DRAFT ([COUNT] tickets)
+For each draft ticket:
+- **[TICKET_KEY]** - [SUMMARY] (Status: Draft)
+  - Assignee: [ASSIGNEE]
+
+#### Summary
+- **Total Epic Tickets**: [TOTAL_COUNT]
+- **Deployed**: [DEPLOYED_COUNT] ([DEPLOYED_PERCENTAGE]%)
+- **Pending Deployment**: [PENDING_COUNT] ([PENDING_PERCENTAGE]%)
+- **In Progress**: [IN_PROGRESS_COUNT] ([IN_PROGRESS_PERCENTAGE]%)
+- **Cancelled**: [CANCELLED_COUNT] ([CANCELLED_PERCENTAGE]%)
+- **Draft**: [DRAFT_COUNT] ([DRAFT_PERCENTAGE]%)
+- **Not Yet Deployed**: [PENDING_COUNT + IN_PROGRESS_COUNT + DRAFT_COUNT] tickets (includes pending, in progress, and draft)
+
+#### Deployment Timeline
+List chronological deployment events that included Epic tickets:
+- **[DATE]**: [DEPLOYMENT_TICKET] - [APPLICATION] - [TICKET_COUNT] tickets deployed
+
+#### Deployment Correlation Analysis
+- **Tracked Deployments**: [COUNT] tickets correlate with specific deployment tickets
+- **Untracked Deployments**: [COUNT] Done tickets deployed outside tracked deployment process
+- **Platform Distribution**: [BREAKDOWN] (e.g., "5 Weaver FE, 3 Backend, 2 PWA deployments")
+- **Deployment Tracking Coverage**: [PERCENTAGE]% of deployed tickets have corresponding deployment tickets
+
+## Usage Examples
+
+### Monthly Report
+
+```
+
+Please generate an Epic Release Report for Epic REF-2794 covering deployments from 2025-06-01 to 2025-06-30.
+
+```
+
+### Quarterly Report
+
+```
+
+Please generate an Epic Release Report for Epic REF-2850 covering deployments from 2025-04-01 to 2025-06-30.
+
+```
+
+### Custom Timeframe
+
+```
+
+Please generate an Epic Release Report for Epic REF-2900 covering deployments from 2025-07-01 to 2025-07-15.
+
+```
+
+## Key Analysis Points
+
+1. **Status Interpretation**: "Done" status = already deployed to production, not pending deployment
+2. **Fix Version Mapping**: Match ticket fix versions with deployment ticket fix versions for correlation
+3. **Deployment Tracking Coverage**: Assess what percentage of Done tickets have corresponding deployment tickets
+4. **Application Alignment**: Ensure tickets match the application being deployed (CMS, Content-Weaver, PWA)
+5. **Platform Distribution**: Analyze deployment spread across different platforms (Frontend, Backend, PWA, Core)
+6. **Explicit References**: Look for ticket keys mentioned in deployment descriptions
+7. **Timeline Logic**: Verify deployment dates align with ticket completion dates
+8. **Tracking Gaps**: Identify where deployments occurred outside formal deployment ticket process
+9. **Epic Progress Assessment**: Calculate actual delivery percentage based on deployed vs. total tickets
+
+## Important Notes
+
+- Use parallel tool calls for efficiency when gathering Epic details, child tickets, and deployment tickets
+- **"Done" status tickets are already deployed** - don't categorize as pending deployment
+- Many deployments may not have corresponding deployment tickets (Backend, PWA, Core deployments)
+- Focus on deployment correlation analysis to understand tracking coverage
+- Include percentage calculations for better insight
+- Highlight deployment tracking gaps and platform distribution patterns
+- Provide actionable insights for both delivery status and process improvement
+
+## Output Format
+
+The report should be clear, actionable, and suitable for stakeholders to understand:
+
+- Epic progress and completion status
+- What has been delivered to users
+- What work remains
+- Timeline and delivery insights
+  description:
+  globs:
+  alwaysApply: false
+
+---
+```

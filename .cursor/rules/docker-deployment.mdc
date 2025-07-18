@@ -1,0 +1,27 @@
+# Docker Deployment Rules
+
+## Container Requirements
+
+1. **The frontend is to be run in a docker container.**
+
+   - The frontend application must be containerized using Docker
+   - Use the provided `docker-compose.yml` configuration for local development
+   - The frontend service should be accessible via the configured port mapping
+
+2. **The backend is to be run in a docker container.**
+   - The backend application must be containerized using Docker
+   - Use the provided `docker-compose.yml` configuration for local development
+   - The backend service should connect to other services (database, Jira proxy) within the Docker network
+
+## Implementation Notes
+
+- Both frontend and backend containers are defined in `docker-compose.yml`
+- Use `docker compose up` to start all services together
+- For production deployments, use `docker-compose.prod.yml`
+- Ensure proper environment variable configuration for container communication
+
+## Commands
+
+- **Development**: `docker compose up`
+- **Production**: `docker compose -f docker-compose.prod.yml up`
+- **Rebuild**: `docker compose build --no-cache`

@@ -1,0 +1,113 @@
+# Deployment Linkage Report: Weaver - Jul25
+
+**Generated:** 2025-01-30  
+**Report Type:** Release Deployment Analysis
+
+---
+
+## Executive Summary
+
+- **Total tickets with Fixed Version "Weaver - Jul25"**: 12
+- **Tickets deployed (Done/Deployed status or linked to deployment)**: 4 (33%)
+- **Tickets NOT yet deployed**: 8 (67%)
+- **Deployment coverage rate**: 33%
+
+---
+
+## ✅ DEPLOYED TICKETS
+
+Tickets with the Fixed Version that are deployed (Done/Deployed status or referenced in deployment tickets):
+
+| Ticket                                                    | Summary                                                         | Issue Type | Status   | Deployment Reference      | Deployment Status |
+| --------------------------------------------------------- | --------------------------------------------------------------- | ---------- | -------- | ------------------------- | ----------------- |
+| [REF-2942](https://cvs-hcd.atlassian.net/browse/REF-2942) | 07/07/2025-CMS-Deployment                                       | Deployment | Deployed | Self (Deployment ticket)  | ✅ Deployed       |
+| [REF-2782](https://cvs-hcd.atlassian.net/browse/REF-2782) | BE: Handle scenario with missing location                       | Sub-task   | Done     | Status indicates deployed | ✅ Deployed       |
+| [REF-2769](https://cvs-hcd.atlassian.net/browse/REF-2769) | BE: Add diagnosis answer id map to Content                      | Story      | Done     | Status indicates deployed | ✅ Deployed       |
+| [REF-2497](https://cvs-hcd.atlassian.net/browse/REF-2497) | BE-Uprev Form Version ID only when lifecycle version is upreved | Story      | Done     | Status indicates deployed | ✅ Deployed       |
+
+---
+
+## ❌ NOT YET DEPLOYED
+
+Tickets with the Fixed Version that are NOT yet deployed:
+
+| Ticket                                                    | Summary                                                                              | Issue Type | Status               | Ready for Deployment    |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------ | ---------- | -------------------- | ----------------------- |
+| [REF-2945](https://cvs-hcd.atlassian.net/browse/REF-2945) | Implement rule builder changes to support branching                                  | Story      | Ready                | ⚠️ In Progress          |
+| [REF-2923](https://cvs-hcd.atlassian.net/browse/REF-2923) | when IsAnswered operator is selected, rule cannot be saved                           | Bug        | Ready                | ⚠️ In Progress          |
+| [REF-2917](https://cvs-hcd.atlassian.net/browse/REF-2917) | Rule conditions can use TextBox questions                                            | Story      | Ready                | ⚠️ In Progress          |
+| [REF-2855](https://cvs-hcd.atlassian.net/browse/REF-2855) | Attach diagnosis(DX description) to answer ids (Single Select Type Question)         | Story      | In Development       | ⚠️ In Progress          |
+| [REF-2819](https://cvs-hcd.atlassian.net/browse/REF-2819) | UX Bug: Single-select question Answer layout                                         | Bug        | In Code Review       | ⚠️ In Progress          |
+| [REF-2731](https://cvs-hcd.atlassian.net/browse/REF-2731) | UX Bug: Rule save buttons are too far left                                           | Story      | Ready for Production | ✅ Ready for Deployment |
+| [REF-2506](https://cvs-hcd.atlassian.net/browse/REF-2506) | Show question location in location tab                                               | Story      | Ready for Testing    | ⚠️ In Progress          |
+| [REF-1514](https://cvs-hcd.atlassian.net/browse/REF-1514) | Edit an existing question (Ready state) with location and save as 'Draft' or 'Ready' | Story      | In Development       | ⚠️ In Progress          |
+
+**Status Legend for "Ready for Deployment" Column:**
+
+- ✅ **Ready for Production**: Ticket is ready to be deployed
+- ⚠️ **In Progress**: Still in development (Ready, In Development, In Code Review, Ready for Testing, etc.)
+
+---
+
+## 📋 DEPLOYMENT TICKETS ANALYSIS
+
+Deployment tickets that reference our target release tickets:
+
+| Deployment Ticket                                         | Summary                   | Status   | Referenced Release Tickets   | Date       |
+| --------------------------------------------------------- | ------------------------- | -------- | ---------------------------- | ---------- |
+| [REF-2942](https://cvs-hcd.atlassian.net/browse/REF-2942) | 07/07/2025-CMS-Deployment | Deployed | REF-2782, REF-2769, REF-2497 | 2025-07-07 |
+
+---
+
+## 📊 Summary Analysis
+
+### Deployment Status Breakdown:
+
+- **✅ Deployed**: 4 tickets (33%) - All have "Done" or "Deployed" status
+- **❌ Not Deployed**: 8 tickets (67%)
+
+### Readiness Status for Undeployed Tickets:
+
+- **✅ Ready for Production**: 1 ticket (REF-2731) - Ready to be deployed
+- **⚠️ In Progress**: 7 tickets - Still in development phases
+
+### Key Insights:
+
+1. **Status-Based Deployment**: With the updated interpretation, all "Done" status tickets are considered deployed
+2. **Deployment Link Confirmation**: The three "Done" tickets (REF-2782, REF-2769, REF-2497) are also explicitly linked to the deployment ticket REF-2942, confirming their deployment
+3. **Next Deployment Candidate**: REF-2731 is the only ticket with "Ready for Production" status, making it the primary candidate for the next deployment
+4. **Development Pipeline**: 7 tickets are still in various stages of development and not yet ready for deployment
+
+### Recommendations:
+
+1. **Deploy Ready Ticket**: REF-2731 can be deployed immediately as it has "Ready for Production" status
+2. **Monitor Development Progress**: Track the remaining 7 tickets through their development pipeline
+3. **Deployment Coverage**: The 33% deployment rate reflects tickets that have completed development and been deployed
+
+---
+
+## 📈 Status Definitions
+
+**CRITICAL**: Understanding ticket statuses for deployment readiness:
+
+- **"Ready"** = Ready for development (NOT ready for deployment)
+- **"Ready for Production"** = Ready for deployment
+- **"Done"** = Already deployed
+- **"Deployed"** = Already deployed to production
+- **"In Development", "In Code Review", "Ready for Testing"** = Still in progress (not ready for deployment)
+
+---
+
+## Conclusion
+
+The deployment linkage report shows that the "Weaver - Jul25" release has achieved a 33% deployment rate with 4 out of 12 tickets successfully deployed. The updated status interpretation provides clearer deployment tracking by treating "Done" status as a deployment indicator, which aligns with the development workflow where tickets are marked "Done" after successful deployment.
+
+**Next Actions:**
+
+- Deploy REF-2731 (Ready for Production)
+- Continue development on remaining 7 tickets
+- Monitor progress towards next deployment milestone
+
+---
+
+_This report was generated using the updated deployment linkage methodology that considers "Done" status as already deployed._

@@ -1,26 +1,49 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: false
 ---
+
 # Release Deployment Report
 
 ## Purpose
+
 This report analyzes tickets with a specific release label (Fixed Version) to determine which tickets are explicitly linked to deployment tickets and which ones are not. This helps track deployment coverage and identify tickets that may need to be included in future deployments.
 
 ## CRITICAL INSTRUCTIONS FOR AI
 
 ### ⚠️ SCOPE RESTRICTION - READ CAREFULLY ⚠️
-**ONLY include tickets that have the EXACT Fixed Version requested.** 
+
+**ONLY include tickets that have the EXACT Fixed Version requested.**
+
 - If a ticket is mentioned in a deployment summary but does NOT have the requested Fixed Version, it should be EXCLUDED from the report
 - Example: If requesting "Weaver FE - Jun (1)" and ticket REF-2228 is mentioned in a deployment but has no Fixed Version or a different Fixed Version, EXCLUDE it from the report
 
 ### 🎯 DEFINITION OF "DEPLOYED"
+
 **A ticket is considered "DEPLOYED" if and only if:**
+
 1. The ticket has the requested Fixed Version AND
 2. The ticket is explicitly referenced in a deployment ticket (in summary, description, or issue links)
 
+### 📊 TICKET STATUS DEFINITIONS FOR DEPLOYMENT READINESS
+
+**CRITICAL**: Understand the meaning of ticket statuses for deployment readiness:
+
+- **"Ready"** = Ready for development (NOT ready for deployment)
+- **"Ready for Production"** = Ready for deployment
+- **"Done"** = Development complete (may or may not be deployed)
+- **"Deployed"** = Already deployed to production
+- **"In Development", "In Code Review", "Ready for Testing"** = Still in progress (not ready for deployment)
+
+**When categorizing deployment readiness:**
+
+- ✅ **Ready for Deployment**: Only tickets with status "Ready for Production" or "Deployed"
+- ⚠️ **In Progress**: Tickets with "Ready", "In Development", "In Code Review", "Ready for Testing", etc.
+- ✅ **Completed but Not Deployed**: Tickets with "Done" status that aren't referenced in deployment tickets
+
 ### 📋 SEARCH METHODOLOGY
+
 1. **First**: Find ALL tickets (any issue type) with the exact Fixed Version
 2. **Second**: Find ALL deployment tickets that reference any of those tickets
 3. **Third**: Cross-reference to determine deployment status
@@ -29,10 +52,18 @@ This report analyzes tickets with a specific release label (Fixed Version) to de
 ## Quick Prompt Template
 
 ### Universal Release Label Analysis:
-```
-Create a deployment linkage report for tickets with the Fixed Version "[RELEASE_LABEL]". 
 
-IMPORTANT: Only include tickets that have the EXACT Fixed Version "[RELEASE_LABEL]". For each ticket with this Fixed Version, determine if it has been deployed by checking if it's referenced in any deployment ticket. A ticket is "deployed" if it's linked to or mentioned in a deployment ticket. The report should show which tickets have been deployed vs those that are ready but not yet deployed.
+```
+Create a deployment linkage report for tickets with the Fixed Version "[RELEASE_LABEL]".
+
+IMPORTANT: Only include tickets that have the EXACT Fixed Version "[RELEASE_LABEL]". For each ticket with this Fixed Version, determine if it has been deployed by checking if it's referenced in any deployment ticket. A ticket is "deployed" if it's linked to or mentioned in a deployment ticket.
+
+When categorizing deployment readiness, remember:
+- "Ready" status = Ready for development (NOT deployment)
+- "Ready for Production" status = Ready for deployment
+- "Done" status = already deployed
+
+The report should show which tickets have been deployed vs those that are ready for production or completed but not yet deployed.
 
 Replace [RELEASE_LABEL] with your specific release identifier (e.g., "Weaver FE - Jun (1)")
 ```
@@ -40,50 +71,69 @@ Replace [RELEASE_LABEL] with your specific release identifier (e.g., "Weaver FE 
 ## Detailed Process
 
 ### Step 1: Find Target Release Tickets
+
 Search for ALL tickets with the specific Fixed Version:
+
 ```jql
 project = REF AND fixVersion = "[EXACT_RELEASE_LABEL]"
 ```
+
 **Fields needed**: `key,summary,issuetype,status,created,assignee,fixVersions,labels,description`
 
 ### Step 2: Find All Deployment Tickets
+
 Search broadly for deployment tickets:
+
 ```jql
 project = REF AND (issuetype = "Deployment" OR summary ~ "deployment" OR labels = "deployment")
 ```
+
 **Fields needed**: `key,summary,issuetype,status,created,assignee,fixVersions,labels,description`
 
 ### Step 3: Analyze Deployment Linkage
+
 For each ticket from Step 1, check if it's referenced in any deployment ticket from Step 2:
+
 1. **Summary References**: Look for ticket keys in deployment summaries (e.g., "REF-2228/REF-2351")
 2. **Description References**: Search deployment descriptions for ticket mentions
 3. **Issue Links**: Check for direct Jira issue links (use expand parameter)
 4. **Additional Searches**: Search deployment tickets specifically mentioning the target tickets
 
 ### Step 4: Generate Report
+
 **CRITICAL**: Only report on tickets that have the exact Fixed Version requested.
 
 ## Report Structure (Updated)
 
 ### Executive Summary
+
 - **Total tickets with Fixed Version "[RELEASE_LABEL]"**: X
 - **Tickets deployed (linked to deployment tickets)**: X (X%)
 - **Tickets NOT yet deployed**: X (X%)
 - **Deployment coverage rate**: X%
 
 ### ✅ DEPLOYED TICKETS
+
 Tickets with the Fixed Version that are referenced in deployment tickets:
 | Ticket | Summary | Issue Type | Status | Deployment Reference | Deployment Status |
 |--------|---------|------------|--------|---------------------|------------------|
 | REF-XXXX | Summary | Story/Bug/Task | Status | REF-XXXX (deployment) | Deployed/Pending |
 
 ### ❌ NOT YET DEPLOYED
+
 Tickets with the Fixed Version that are NOT referenced in any deployment ticket:
 | Ticket | Summary | Issue Type | Status | Ready for Deployment |
 |--------|---------|------------|--------|---------------------|
-| REF-XXXX | Summary | Story/Bug/Task | Status | ✅ Ready |
+| REF-XXXX | Summary | Story/Bug/Task | Status | ✅ Ready for Production / ⚠️ In Progress / ✅ Done |
+
+**Status Legend for "Ready for Deployment" Column:**
+
+- ✅ **Ready for Production**: Ticket is ready to be deployed
+- ✅ **Done**: Development complete but not yet deployed
+- ⚠️ **In Progress**: Still in development (Ready, In Development, In Code Review, Ready for Testing, etc.)
 
 ### 📋 DEPLOYMENT TICKETS ANALYSIS
+
 Deployment tickets that reference our target release tickets:
 | Deployment Ticket | Summary | Status | Referenced Release Tickets | Date |
 |-------------------|---------|--------|-----------------------------|------|
@@ -92,16 +142,19 @@ Deployment tickets that reference our target release tickets:
 ## Search Queries to Use
 
 ### 1. Get all tickets with specific Fixed Version
+
 ```jql
 project = REF AND fixVersion = "[EXACT_RELEASE_LABEL]"
 ```
 
 ### 2. Get all deployment tickets
+
 ```jql
 project = REF AND (issuetype = "Deployment" OR summary ~ "deployment" OR labels = "deployment")
 ```
 
 ### 3. Search for deployment tickets mentioning specific ticket keys
+
 ```jql
 project = REF AND issuetype = "Deployment" AND (summary ~ "REF-XXXX" OR description ~ "REF-XXXX")
 ```
@@ -109,12 +162,14 @@ project = REF AND issuetype = "Deployment" AND (summary ~ "REF-XXXX" OR descript
 ## Common Mistakes to Avoid
 
 ### ❌ DON'T DO THIS:
+
 - Include tickets mentioned in deployments but without the correct Fixed Version
 - Assume tickets with similar names belong to the release
 - Include deployment tickets themselves in the "not deployed" list
 - Mix up tickets from different Fixed Versions
 
 ### ✅ DO THIS:
+
 - Verify each ticket has the EXACT Fixed Version before including
 - Search deployment summaries AND descriptions for ticket references
 - Check both explicit references (REF-2228) and issue links
@@ -123,6 +178,7 @@ project = REF AND issuetype = "Deployment" AND (summary ~ "REF-XXXX" OR descript
 ## Error Prevention Checklist
 
 Before generating the report, verify:
+
 - [ ] All included tickets have the exact Fixed Version requested
 - [ ] Deployment tickets are excluded from "not deployed" lists
 - [ ] Search covered both deployment summaries and descriptions
@@ -132,17 +188,26 @@ Before generating the report, verify:
 ## Example Usage
 
 ### Correct Prompt:
-```
-Create a deployment linkage report for tickets with the Fixed Version "Weaver FE - Jun (1)". 
 
-IMPORTANT: Only include tickets that have the EXACT Fixed Version "Weaver FE - Jun (1)". For each ticket with this Fixed Version, determine if it has been deployed by checking if it's referenced in any deployment ticket. A ticket is "deployed" if it's linked to or mentioned in a deployment ticket. The report should show which tickets have been deployed vs those that are ready but not yet deployed.
+```
+Create a deployment linkage report for tickets with the Fixed Version "Weaver FE - Jun (1)".
+
+IMPORTANT: Only include tickets that have the EXACT Fixed Version "Weaver FE - Jun (1)". For each ticket with this Fixed Version, determine if it has been deployed by checking if it's referenced in any deployment ticket. A ticket is "deployed" if it's linked to or mentioned in a deployment ticket.
+
+When categorizing deployment readiness, remember:
+- "Ready" status = Ready for development (NOT deployment)
+- "Ready for Production" status = Ready for deployment
+- "Done" status = Development complete (may or may not be deployed)
+
+The report should show which tickets have been deployed vs those that are ready for production or completed but not yet deployed.
 ```
 
 ## Integration with Deployment Workflow
 
 This report should be run:
+
 - **Before Release Planning**: To identify tickets ready for deployment
-- **During Sprint Planning**: To track deployment progress  
+- **During Sprint Planning**: To track deployment progress
 - **After Deployments**: To verify all planned tickets were deployed
 - **For Release Retrospectives**: To analyze deployment coverage and patterns
 
@@ -153,4 +218,3 @@ This report should be run:
 3. **Release Readiness**: Shows what's ready but not yet deployed
 4. **Coverage Analysis**: Tracks deployment progress for specific releases
 5. **Quality Assurance**: Ensures all release tickets are properly deployed
-
