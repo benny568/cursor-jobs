@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 // Jira configuration
-const JIRA_BASE_URL = 'project = Reformers AND issuetype = Epic AND status not in (Done, Cancelled)https://cvs-hcd.atlassian.net';
+const JIRA_BASE_URL = 'https://cvs-hcd.atlassian.net';
 const JIRA_API_VERSION = '3'; // Use REST API v3
 
 // Authentication - You'll need to set these environment variables

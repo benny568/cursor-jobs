@@ -1,0 +1,34 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+
+## Implementation Notes
+
+1. **Importing Epics or single tickets from Jira**
+   - The user can import all 'open' epics in a given project (defaulted to 'REF') where 'open' includes all status' except Closed or Done.
+   - Imported tickets from Jira, either epics or single tickets, can be added manually to work items.
+   - Epics should always be displayed with its children tickets as an expandable drop-down.
+2. **The database is to be used for all persistant storage.**
+   - localstorage is not used to persist any Jira ticket data or sprint planning information.
+3. **User flow**
+   - The user can import ticket details from Jira.
+   - The user can add any single epic or ticket from the imported list as a work item.
+   - The user can also create a work item manually.
+   - The work items list is the only list from which tickets can be added to a sprint.
+   - The work items list is accessable from the 'Sprint Planning' view.
+   - A work item can be added to a sprint via drag and drop.
+   - Work items are persisted to the database.
+4. **Adding a ticket to a sprint**
+   - When a work item is added to a sprint, the points allocated to the ticket is subsctracted from the points available in the sprint.
+   - A ticket should be determinded as either FE or BE before adding to a sprint. If the decription field in the ticket has 'BE' in the description then it can be considered 'BE' or if it contains 'FE' then it can be considered FE.
+   - If it cannot be determined automatically if a ticket is FE or BE, the user should be asked when adding it to a sprint.
+   - The points should be substracted from the BE or FE allocation for the sprint, depending on which the ticket has been identified as.
+5. **Configuring sprints**
+   - The user should be able to add the start date of the first sprint, the number of days in the sprint, and the points for the sprint.
+   - If the user enters 14 days for the sprint duration, weekends shoudl be removed when calculating the available days in the sprint for work, e.g. for two weeks (14 days) there will be two weekends, this is 4 days. 14 - 4 = 10 days available for work.
+   - The user should be able to edit the number of points per sprint if necessary.
+   - The total number of work days available in a sprint is calculated by multiplying the available work days by the number of team mem bers, e.g. 10 days \* 9 team members gives a total of 90 days.
+   - Note: A public holiday is for all team members. This means that 1 public holiday results in 'the number of team members' _ 'the number of public holidays', i.e. 9 _ 1 in this example. Thus, 9 days need to be accounted for when calculating the available points for the sprint as described below.
+   - The points in a sprint should be adjusted based on public holidays and personal holidays in the following manner. The full points allocation for the sprint should be taken as 100%. Holidays that fall during a sprint, both public and personal, are calculated as a percentage of the total number of days available for work. For example, if there are 90 days in total available for work in the sprint, there is 1 public holiday, then there is (10-9/90)\*100 % of the total available for work. To calculate the impact on the points available, apply the same precentage to the total number of points configured for the sprint, e.g. if this is X points then in the above example it would be achieved by multiplying X by (10-9/90).
